@@ -199,23 +199,3 @@ Potential enhancements for future contributors:
 * Advanced Fraud Detection Models
 * Mobile Application Integration
 * Real-Time Notifications
-
----
-
-## Screenshots
-
-Screenshots can be added here after deployment:
-
-* Login Page
-* User Dashboard
-* Transaction History
-* Fraud Detection Dashboard
-* Admin Panel
-
----
-
-## License
-
-This project is intended for educational, learning, and portfolio purposes.
-
-Feel free to fork, modify, and extend the system.
