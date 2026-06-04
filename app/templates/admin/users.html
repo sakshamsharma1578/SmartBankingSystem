@@ -1,0 +1,76 @@
+{% extends "layout.html" %}
+{% block title %}Users — Admin{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block content %}
+<div class="db-card mb-4">
+  <form method="GET" class="d-flex gap-3 p-3">
+    <div class="input-icon-wrap flex-grow-1">
+      <i class="bi bi-search input-icon"></i>
+      <input type="text" name="search" class="form-control input-with-icon"
+             placeholder="Search by name or email..." value="{{ search }}">
+    </div>
+    <button type="submit" class="btn btn-primary px-4">Search</button>
+    {% if search %}<a href="{{ url_for('admin.users') }}" class="btn btn-secondary">Clear</a>{% endif %}
+  </form>
+</div>
+
+<div class="db-card">
+  <div class="db-card-header p-3">
+    <h3>All Users <span class="badge bg-secondary ms-2">{{ pagination.total }}</span></h3>
+  </div>
+  <div class="table-responsive">
+    <table class="table smart-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Full Name</th><th>Email</th><th>Phone</th>
+          <th>Accounts</th><th>Joined</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td class="text-muted small">{{ user.id }}</td>
+          <td class="fw-500">{{ user.full_name }}</td>
+          <td class="small">{{ user.email }}</td>
+          <td class="small text-muted">{{ user.phone_number or '—' }}</td>
+          <td>{{ user.accounts.count() }}</td>
+          <td class="small text-muted">{{ user.created_at.strftime('%b %d, %Y') }}</td>
+          <td>
+            <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+              {% if user.is_active %}Active{% else %}Inactive{% endif %}
+            </span>
+          </td>
+          <td>
+            <form method="POST" action="{{ url_for('admin.delete', user_id=user.id) }}"
+                  onsubmit="return confirm('Delete user {{ user.full_name }}? This cannot be undone.')">
+              <button type="submit" class="btn btn-xs btn-outline-danger">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pagination.pages > 1 %}
+  <div class="d-flex justify-content-center p-3">
+    <nav>
+      <ul class="pagination pagination-sm">
+        {% for p in pagination.iter_pages() %}
+          {% if p %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="?page={{ p }}&search={{ search }}">{{ p }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

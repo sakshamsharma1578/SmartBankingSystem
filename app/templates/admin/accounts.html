@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+{% block title %}Accounts — Admin{% endblock %}
+{% block page_title %}Account Management{% endblock %}
+
+{% block content %}
+<div class="db-card mb-4">
+  <form method="GET" class="d-flex gap-3 p-3 flex-wrap">
+    <div class="input-icon-wrap flex-grow-1">
+      <i class="bi bi-search input-icon"></i>
+      <input type="text" name="search" class="form-control input-with-icon"
+             placeholder="Search by account number..." value="{{ search }}">
+    </div>
+    <select name="status" class="form-select" style="max-width:160px">
+      <option value="">All Status</option>
+      <option value="active" {% if status_filter=='active' %}selected{% endif %}>Active</option>
+      <option value="frozen" {% if status_filter=='frozen' %}selected{% endif %}>Frozen</option>
+      <option value="closed" {% if status_filter=='closed' %}selected{% endif %}>Closed</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+</div>
+
+<div class="db-card">
+  <div class="table-responsive">
+    <table class="table smart-table">
+      <thead>
+        <tr>
+          <th>Account #</th><th>Owner</th><th>Type</th>
+          <th class="text-end">Balance</th><th>Status</th><th>Created</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for acc in accounts %}
+        <tr>
+          <td class="font-mono">{{ acc.account_number }}</td>
+          <td>
+            <div class="fw-500">{{ acc.owner.full_name }}</div>
+            <div class="small text-muted">{{ acc.owner.email }}</div>
+          </td>
+          <td><span class="badge bg-info text-dark">{{ acc.account_type.title() }}</span></td>
+          <td class="text-end fw-600">${{ "%.2f"|format(acc.balance) }}</td>
+          <td>
+            <span class="badge {% if acc.status == 'active' %}bg-success{% elif acc.status == 'frozen' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+              {{ acc.status.title() }}
+            </span>
+          </td>
+          <td class="small text-muted">{{ acc.created_at.strftime('%b %d, %Y') }}</td>
+          <td>
+            <div class="d-flex gap-1">
+              {% if acc.status == 'active' %}
+              <form method="POST" action="{{ url_for('admin.freeze', account_id=acc.id) }}">
+                <button type="submit" class="btn btn-xs btn-warning" title="Freeze">
+                  <i class="bi bi-lock-fill"></i>
+                </button>
+              </form>
+              {% elif acc.status == 'frozen' %}
+              <form method="POST" action="{{ url_for('admin.unfreeze', account_id=acc.id) }}">
+                <button type="submit" class="btn btn-xs btn-success" title="Unfreeze">
+                  <i class="bi bi-unlock-fill"></i>
+                </button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pagination.pages > 1 %}
+  <div class="d-flex justify-content-center p-3">
+    <nav>
+      <ul class="pagination pagination-sm">
+        {% for p in pagination.iter_pages() %}
+          {% if p %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="?page={{ p }}&search={{ search }}&status={{ status_filter }}">{{ p }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

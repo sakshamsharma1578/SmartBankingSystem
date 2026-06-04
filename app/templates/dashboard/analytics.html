@@ -1,0 +1,126 @@
+{% extends "layout.html" %}
+{% block title %}Analytics{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="db-card">
+      <div class="db-card-header">
+        <h3>Monthly Deposits vs Withdrawals</h3>
+        <span class="text-muted small">Last 6 months</span>
+      </div>
+      <canvas id="monthlyChart" height="120"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="db-card">
+      <div class="db-card-header">
+        <h3>Transaction Breakdown</h3>
+      </div>
+      <canvas id="categoryChart" height="200"></canvas>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="db-card">
+      <div class="db-card-header">
+        <h3>Account Balance Growth</h3>
+        <span class="text-muted small">Last 30 transactions</span>
+      </div>
+      <canvas id="growthChart" height="80"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <div class="db-card">
+    <div class="db-card-header">
+      <h3>Download Statement</h3>
+    </div>
+    <form action="{{ url_for('reports.download_statement') }}" method="GET" class="row g-3 align-items-end p-3">
+      <div class="col-md-4">
+        <label class="form-label">Start Date</label>
+        <input type="date" name="start_date" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <label class="form-label">End Date</label>
+        <input type="date" name="end_date" class="form-control">
+      </div>
+      <div class="col-md-4">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-file-earmark-pdf me-2"></i>Download PDF
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const md = {{ monthly_data|safe }};
+const cd = {{ category_data|safe }};
+const gd = {{ growth_data|safe }};
+
+// Monthly bar chart
+new Chart(document.getElementById('monthlyChart'), {
+  type: 'bar',
+  data: {
+    labels: md.months,
+    datasets: [
+      { label: 'Deposits', data: md.deposits, backgroundColor: 'rgba(34,197,94,0.8)', borderRadius: 6 },
+      { label: 'Withdrawals', data: md.withdrawals, backgroundColor: 'rgba(239,68,68,0.8)', borderRadius: 6 }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#94a3b8' } } },
+    scales: {
+      x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,0.1)' } },
+      y: { ticks: { color: '#94a3b8', callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(148,163,184,0.1)' } }
+    }
+  }
+});
+
+// Donut category chart
+new Chart(document.getElementById('categoryChart'), {
+  type: 'doughnut',
+  data: {
+    labels: Object.keys(cd),
+    datasets: [{ data: Object.values(cd),
+      backgroundColor: ['rgba(34,197,94,0.8)','rgba(239,68,68,0.8)','rgba(59,130,246,0.8)','rgba(168,85,247,0.8)'],
+      borderWidth: 0 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#94a3b8' } } }
+  }
+});
+
+// Balance growth line chart
+new Chart(document.getElementById('growthChart'), {
+  type: 'line',
+  data: {
+    labels: gd.labels,
+    datasets: [{
+      label: 'Balance',
+      data: gd.balances,
+      borderColor: '#3B82F6',
+      backgroundColor: 'rgba(59,130,246,0.1)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 3,
+      pointBackgroundColor: '#3B82F6'
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#94a3b8' } } },
+    scales: {
+      x: { ticks: { color: '#94a3b8', maxTicksLimit: 10 }, grid: { color: 'rgba(148,163,184,0.1)' } },
+      y: { ticks: { color: '#94a3b8', callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(148,163,184,0.1)' } }
+    }
+  }
+});
+</script>
+{% endblock %}

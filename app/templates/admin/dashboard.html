@@ -1,0 +1,109 @@
+{% extends "layout.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block page_title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="stats-row">
+  <div class="stat-card stat-blue">
+    <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Total Users</div>
+      <div class="stat-value">{{ total_users }}</div>
+    </div>
+  </div>
+  <div class="stat-card stat-green">
+    <div class="stat-icon"><i class="bi bi-credit-card-2-front-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Accounts</div>
+      <div class="stat-value">{{ total_accounts }}</div>
+    </div>
+  </div>
+  <div class="stat-card stat-purple">
+    <div class="stat-icon"><i class="bi bi-arrow-left-right"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Transactions</div>
+      <div class="stat-value">{{ total_transactions }}</div>
+    </div>
+  </div>
+  <div class="stat-card {% if open_alerts > 0 %}stat-orange{% else %}stat-gray{% endif %}">
+    <div class="stat-icon"><i class="bi bi-shield-exclamation"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Open Alerts</div>
+      <div class="stat-value">{{ open_alerts }}</div>
+    </div>
+  </div>
+  <div class="stat-card stat-teal">
+    <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Total Volume</div>
+      <div class="stat-value">${{ "%.0f"|format(total_volume) }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-1">
+  <!-- Recent Alerts -->
+  <div class="col-lg-6">
+    <div class="db-card">
+      <div class="db-card-header">
+        <h3><i class="bi bi-shield-exclamation text-warning me-2"></i>Recent Fraud Alerts</h3>
+        <a href="{{ url_for('admin.fraud_alerts') }}" class="btn-link">View all →</a>
+      </div>
+      {% if recent_alerts %}
+        {% for alert in recent_alerts %}
+        <div class="alert-item severity-{{ alert.severity }}">
+          <div class="alert-severity badge-severity-{{ alert.severity }}">{{ alert.severity.upper() }}</div>
+          <div class="alert-body">
+            <div class="alert-type">{{ alert.alert_type.replace('_', ' ').title() }}</div>
+            <div class="alert-desc small">{{ alert.description[:80] }}...</div>
+          </div>
+          <form method="POST" action="{{ url_for('admin.resolve_alert', alert_id=alert.id) }}" class="ms-2">
+            <button type="submit" class="btn btn-xs btn-outline-success" title="Resolve">
+              <i class="bi bi-check"></i>
+            </button>
+          </form>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="empty-state py-4"><i class="bi bi-shield-check text-success"></i><p>No open fraud alerts</p></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Users -->
+  <div class="col-lg-6">
+    <div class="db-card">
+      <div class="db-card-header">
+        <h3><i class="bi bi-people-fill me-2"></i>Recent Users</h3>
+        <a href="{{ url_for('admin.users') }}" class="btn-link">View all →</a>
+      </div>
+      {% if recent_users %}
+      <div class="table-responsive">
+        <table class="table smart-table">
+          <thead>
+            <tr><th>Name</th><th>Email</th><th>Joined</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for user in recent_users %}
+            <tr>
+              <td>{{ user.full_name }}</td>
+              <td class="small text-muted">{{ user.email }}</td>
+              <td class="small">{{ user.created_at.strftime('%b %d') }}</td>
+              <td>
+                <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                  {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty-state py-4"><p>No users yet</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Open Account — SmartBank{% endblock %}
+{% block body %}
+<div class="auth-page">
+  <div class="auth-left">
+    <a href="{{ url_for('auth.index') }}" class="auth-brand">
+      <i class="bi bi-shield-lock-fill"></i>
+      <span>SmartBank</span>
+    </a>
+    <div class="auth-tagline">
+      <h2>Join SmartBank.</h2>
+      <p>Open your account in minutes and gain access to intelligent banking, fraud protection, and real-time insights.</p>
+    </div>
+    <div class="auth-features">
+      <div class="auth-feature"><i class="bi bi-person-check-fill"></i> No minimum balance</div>
+      <div class="auth-feature"><i class="bi bi-credit-card-fill"></i> Savings or current account</div>
+      <div class="auth-feature"><i class="bi bi-robot"></i> AI-powered fraud detection</div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-card" style="max-width:480px">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Fill in your details to get started</p>
+
+      <form method="POST" action="{{ url_for('auth.register') }}">
+        <div class="row">
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <div class="input-icon-wrap">
+                <i class="bi bi-person-fill input-icon"></i>
+                <input type="text" name="full_name" class="form-control input-with-icon"
+                       placeholder="John Doe" required>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <div class="input-icon-wrap">
+                <i class="bi bi-envelope-fill input-icon"></i>
+                <input type="email" name="email" class="form-control input-with-icon"
+                       placeholder="you@example.com" required>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Phone Number</label>
+              <div class="input-icon-wrap">
+                <i class="bi bi-telephone-fill input-icon"></i>
+                <input type="tel" name="phone_number" class="form-control input-with-icon"
+                       placeholder="+1 (555) 000-0000">
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="form-group">
+              <label class="form-label">Account Type</label>
+              <div class="input-icon-wrap">
+                <i class="bi bi-credit-card-fill input-icon"></i>
+                <select name="account_type" class="form-control input-with-icon">
+                  <option value="savings">Savings Account</option>
+                  <option value="current">Current Account</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <div class="input-icon-wrap">
+                <i class="bi bi-lock-fill input-icon"></i>
+                <input type="password" name="password" id="pw1"
+                       class="form-control input-with-icon"
+                       placeholder="Min. 8 characters" required minlength="8"
+                       oninput="checkStrength(this.value)">
+              </div>
+              <div class="password-strength mt-1">
+                <div class="strength-bar" id="strengthBar"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="form-group">
+              <label class="form-label">Confirm Password</label>
+              <div class="input-icon-wrap">
+                <i class="bi bi-lock-fill input-icon"></i>
+                <input type="password" name="confirm_password" id="pw2"
+                       class="form-control input-with-icon"
+                       placeholder="Repeat password" required minlength="8">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-auth-primary w-100 mt-2">
+          <i class="bi bi-person-plus me-2"></i>Open Account
+        </button>
+      </form>
+
+      <p class="auth-footer-text mt-3">Already have an account? <a href="{{ url_for('auth.login') }}" class="auth-link">Sign in</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+function checkStrength(pw) {
+  const bar = document.getElementById('strengthBar');
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (/[A-Z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const colors = ['#ef4444','#f97316','#eab308','#22c55e'];
+  const widths = ['25%','50%','75%','100%'];
+  bar.style.width = pw.length ? widths[score-1] || '10%' : '0';
+  bar.style.backgroundColor = pw.length ? colors[score-1] || '#ef4444' : '';
+}
+</script>
+{% endblock %}

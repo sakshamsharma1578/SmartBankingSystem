@@ -1,0 +1,77 @@
+{% extends "layout.html" %}
+{% block title %}Audit Logs — Admin{% endblock %}
+{% block page_title %}Audit Logs{% endblock %}
+
+{% block content %}
+<div class="db-card">
+  <div class="db-card-header p-3">
+    <h3>System Audit Log <span class="badge bg-secondary ms-2">{{ pagination.total }}</span></h3>
+    <span class="text-muted small">All user and admin actions</span>
+  </div>
+  <div class="table-responsive">
+    <table class="table smart-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>User</th>
+          <th>Action</th>
+          <th>Details</th>
+          <th>IP Address</th>
+          <th>Date & Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs %}
+        <tr>
+          <td class="text-muted small">{{ log.id }}</td>
+          <td>
+            {% if log.user %}
+              <div class="fw-500 small">{{ log.user.full_name }}</div>
+              <div class="text-muted" style="font-size:0.75rem">{{ log.user.email }}</div>
+            {% else %}
+              <span class="text-muted small">System</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge-action badge-action-{{ log.action }}">
+              {{ log.action.replace('_', ' ').title() }}
+            </span>
+          </td>
+          <td class="small text-muted" style="max-width:320px">{{ log.details or '—' }}</td>
+          <td class="font-mono small text-muted">{{ log.ip_address or '—' }}</td>
+          <td class="small text-muted">{{ log.created_at.strftime('%b %d, %Y %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pagination.pages > 1 %}
+  <div class="d-flex justify-content-center p-3">
+    <nav>
+      <ul class="pagination pagination-sm">
+        {% if pagination.has_prev %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ pagination.prev_num }}">«</a>
+          </li>
+        {% endif %}
+        {% for p in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+          {% if p %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?page={{ pagination.next_num }}">»</a>
+          </li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

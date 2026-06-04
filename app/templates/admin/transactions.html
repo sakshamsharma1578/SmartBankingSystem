@@ -1,0 +1,63 @@
+{% extends "layout.html" %}
+{% block title %}All Transactions — Admin{% endblock %}
+{% block page_title %}All Transactions{% endblock %}
+
+{% block content %}
+<div class="db-card">
+  <div class="table-responsive">
+    <table class="table smart-table">
+      <thead>
+        <tr>
+          <th>Txn ID</th><th>Account</th><th>Owner</th>
+          <th>Type</th><th class="text-end">Amount</th>
+          <th class="text-end">Balance After</th><th>Date</th><th>Flag</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for txn in transactions %}
+        <tr {% if txn.is_flagged %}class="table-warning"{% endif %}>
+          <td class="font-mono small text-muted">{{ txn.transaction_id[:8] }}...</td>
+          <td class="font-mono small">{{ txn.account.account_number }}</td>
+          <td class="small">{{ txn.account.owner.full_name }}</td>
+          <td>
+            <span class="txn-badge txn-badge-{{ txn.transaction_type.split('_')[0] }}">
+              {{ txn.transaction_type.replace('_',' ').title() }}
+            </span>
+          </td>
+          <td class="text-end fw-600 {% if txn.transaction_type in ['deposit','transfer_in'] %}text-success{% else %}text-danger{% endif %}">
+            ${{ "%.2f"|format(txn.amount) }}
+          </td>
+          <td class="text-end small">${{ "%.2f"|format(txn.balance_after) }}</td>
+          <td class="small text-muted">{{ txn.created_at.strftime('%b %d %H:%M') }}</td>
+          <td>
+            {% if txn.is_flagged %}
+              <span class="badge bg-warning text-dark"><i class="bi bi-flag-fill"></i></span>
+            {% else %}
+              <span class="badge bg-success"><i class="bi bi-check"></i></span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if pagination.pages > 1 %}
+  <div class="d-flex justify-content-center p-3">
+    <nav>
+      <ul class="pagination pagination-sm">
+        {% for p in pagination.iter_pages() %}
+          {% if p %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

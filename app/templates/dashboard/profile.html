@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+{% block title %}Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="db-card text-center p-4">
+      <div class="profile-avatar">{{ current_user.full_name[0].upper() }}</div>
+      <h4 class="mt-3 mb-1">{{ current_user.full_name }}</h4>
+      <p class="text-muted">{{ current_user.email }}</p>
+      {% if current_user.is_admin %}
+        <span class="badge bg-danger">Administrator</span>
+      {% endif %}
+      <hr>
+      <div class="profile-info-list">
+        <div class="profile-info-item">
+          <i class="bi bi-telephone-fill"></i>
+          <span>{{ current_user.phone_number or 'Not provided' }}</span>
+        </div>
+        <div class="profile-info-item">
+          <i class="bi bi-calendar-fill"></i>
+          <span>Joined {{ current_user.created_at.strftime('%B %Y') }}</span>
+        </div>
+        {% if current_user.last_login %}
+        <div class="profile-info-item">
+          <i class="bi bi-clock-fill"></i>
+          <span>Last login {{ current_user.last_login.strftime('%b %d, %Y') }}</span>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if account %}
+    <div class="db-card p-4 mt-4">
+      <h5 class="mb-3">Account Details</h5>
+      <div class="profile-info-list">
+        <div class="profile-info-item">
+          <i class="bi bi-credit-card-fill"></i>
+          <span>{{ account.account_number }}</span>
+        </div>
+        <div class="profile-info-item">
+          <i class="bi bi-wallet-fill"></i>
+          <span>{{ account.account_type.title() }}</span>
+        </div>
+        <div class="profile-info-item">
+          <i class="bi bi-currency-dollar"></i>
+          <span>${{ "%.2f"|format(account.balance) }}</span>
+        </div>
+        <div class="profile-info-item">
+          <i class="bi bi-circle-fill text-{% if account.status == 'active' %}success{% elif account.status == 'frozen' %}warning{% else %}danger{% endif %}"></i>
+          <span>{{ account.status.title() }}</span>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-8">
+    <div class="db-card">
+      <div class="db-card-header">
+        <h3>Activity Log</h3>
+        <span class="text-muted small">Last 20 actions</span>
+      </div>
+      {% if logs %}
+      <div class="table-responsive">
+        <table class="table smart-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Details</th>
+              <th>IP Address</th>
+              <th>Date/Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in logs %}
+            <tr>
+              <td><span class="badge-action">{{ log.action.replace('_',' ').title() }}</span></td>
+              <td class="text-muted small">{{ log.details or '—' }}</td>
+              <td class="font-mono small">{{ log.ip_address or '—' }}</td>
+              <td class="text-muted small">{{ log.created_at.strftime('%b %d %H:%M') }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="empty-state"><i class="bi bi-journal-text"></i><p>No activity yet</p></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

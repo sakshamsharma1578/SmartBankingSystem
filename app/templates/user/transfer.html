@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+{% block title %}Transfer{% endblock %}
+{% block page_title %}Transfer Funds{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="db-card transaction-card">
+      <div class="txn-card-icon transfer-icon">
+        <i class="bi bi-send-fill"></i>
+      </div>
+      <h2 class="txn-card-title">Transfer Funds</h2>
+      <p class="txn-card-subtitle">Send money to another SmartBank account</p>
+
+      <div class="balance-display">
+        <span class="balance-display-label">Your Balance</span>
+        <span class="balance-display-amount">${{ "%.2f"|format(account.balance) }}</span>
+      </div>
+
+      <form method="POST">
+        <div class="form-group">
+          <label class="form-label">From Account</label>
+          <input type="text" class="form-control" value="{{ account.account_number }}" disabled>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Recipient Account Number</label>
+          <div class="input-icon-wrap">
+            <i class="bi bi-credit-card-fill input-icon"></i>
+            <input type="text" name="to_account_number" class="form-control input-with-icon"
+                   placeholder="12-digit account number" pattern="\d{12}" maxlength="12" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon currency-symbol">$</span>
+            <input type="number" name="amount" class="form-control input-with-icon"
+                   placeholder="0.00" min="0.01" step="0.01" max="{{ account.balance }}" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description (optional)</label>
+          <input type="text" name="description" class="form-control" placeholder="e.g. Rent payment">
+        </div>
+
+        <div class="transfer-warning">
+          <i class="bi bi-info-circle me-2"></i>
+          Transfers are instant and cannot be reversed. Verify the account number carefully.
+        </div>
+
+        <button type="submit" class="btn-txn-transfer w-100">
+          <i class="bi bi-send me-2"></i>Send Transfer
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

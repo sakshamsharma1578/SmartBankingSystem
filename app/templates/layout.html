@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="app-layout">
+  <!-- Sidebar -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <i class="bi bi-shield-lock-fill"></i>
+      </div>
+      <div>
+        <div class="brand-name">SmartBank</div>
+        <div class="brand-tagline">Secure Banking</div>
+      </div>
+    </div>
+
+    <div class="sidebar-user">
+      <div class="user-avatar">{{ current_user.full_name[0].upper() }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ current_user.full_name.split()[0] }}</div>
+        <div class="user-role">{% if current_user.is_admin %}Administrator{% else %}Account Holder{% endif %}</div>
+      </div>
+    </div>
+
+    <ul class="sidebar-nav">
+      {% if current_user.is_admin %}
+        <li class="nav-section">Administration</li>
+        <li><a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+          <i class="bi bi-speedometer2"></i><span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('admin.users') }}" class="nav-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+          <i class="bi bi-people-fill"></i><span>Users</span></a></li>
+        <li><a href="{{ url_for('admin.accounts') }}" class="nav-link {% if request.endpoint == 'admin.accounts' %}active{% endif %}">
+          <i class="bi bi-credit-card-2-front-fill"></i><span>Accounts</span></a></li>
+        <li><a href="{{ url_for('admin.transactions') }}" class="nav-link {% if request.endpoint == 'admin.transactions' %}active{% endif %}">
+          <i class="bi bi-arrow-left-right"></i><span>Transactions</span></a></li>
+        <li><a href="{{ url_for('admin.fraud_alerts') }}" class="nav-link {% if request.endpoint == 'admin.fraud_alerts' %}active{% endif %}">
+          <i class="bi bi-shield-exclamation"></i><span>Fraud Alerts</span>
+          {% set unresolved = namespace(count=0) %}
+          </a></li>
+        <li><a href="{{ url_for('admin.audit_logs') }}" class="nav-link {% if request.endpoint == 'admin.audit_logs' %}active{% endif %}">
+          <i class="bi bi-journal-text"></i><span>Audit Logs</span></a></li>
+      {% else %}
+        <li class="nav-section">Banking</li>
+        <li><a href="{{ url_for('dashboard.home') }}" class="nav-link {% if request.endpoint == 'dashboard.home' %}active{% endif %}">
+          <i class="bi bi-grid-1x2-fill"></i><span>Dashboard</span></a></li>
+        <li><a href="{{ url_for('transactions.deposit_funds') }}" class="nav-link {% if request.endpoint == 'transactions.deposit_funds' %}active{% endif %}">
+          <i class="bi bi-arrow-down-circle-fill"></i><span>Deposit</span></a></li>
+        <li><a href="{{ url_for('transactions.withdraw_funds') }}" class="nav-link {% if request.endpoint == 'transactions.withdraw_funds' %}active{% endif %}">
+          <i class="bi bi-arrow-up-circle-fill"></i><span>Withdraw</span></a></li>
+        <li><a href="{{ url_for('transactions.transfer_funds') }}" class="nav-link {% if request.endpoint == 'transactions.transfer_funds' %}active{% endif %}">
+          <i class="bi bi-send-fill"></i><span>Transfer</span></a></li>
+        <li class="nav-section">Insights</li>
+        <li><a href="{{ url_for('transactions.history') }}" class="nav-link {% if request.endpoint == 'transactions.history' %}active{% endif %}">
+          <i class="bi bi-clock-history"></i><span>History</span></a></li>
+        <li><a href="{{ url_for('dashboard.analytics') }}" class="nav-link {% if request.endpoint == 'dashboard.analytics' %}active{% endif %}">
+          <i class="bi bi-bar-chart-line-fill"></i><span>Analytics</span></a></li>
+      {% endif %}
+    </ul>
+
+    <div class="sidebar-footer">
+      <a href="{{ url_for('dashboard.profile') }}" class="nav-link {% if request.endpoint == 'dashboard.profile' %}active{% endif %}">
+        <i class="bi bi-person-circle"></i><span>Profile</span></a>
+      <a href="{{ url_for('auth.logout') }}" class="nav-link nav-logout">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <header class="topbar">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="bi bi-list"></i>
+      </button>
+      <div class="topbar-title">{% block page_title %}{% endblock %}</div>
+      <div class="topbar-actions">
+        <div class="topbar-time" id="topbarTime"></div>
+        {% if not current_user.is_admin %}
+        <a href="{{ url_for('reports.download_statement') }}" class="btn btn-sm btn-outline-primary">
+          <i class="bi bi-download me-1"></i>Statement
+        </a>
+        {% endif %}
+      </div>
+    </header>
+    <div class="content-area">
+      {% block content %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}

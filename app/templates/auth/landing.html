@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}SmartBank — Secure Banking Management{% endblock %}
+{% block body %}
+<div class="landing-page">
+  <!-- Nav -->
+  <nav class="landing-nav">
+    <div class="landing-nav-brand">
+      <i class="bi bi-shield-lock-fill"></i>
+      <span>SmartBank</span>
+    </div>
+    <div class="landing-nav-links">
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Sign In</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary-landing">Open Account</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero-section">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge"><i class="bi bi-shield-check me-2"></i>Bank-Grade Security</div>
+      <h1 class="hero-title">Banking That<br><span class="gradient-text">Works for You</span></h1>
+      <p class="hero-subtitle">SmartBank combines intelligent fraud detection, real-time analytics, and seamless money management in one secure platform.</p>
+      <div class="hero-actions">
+        <a href="{{ url_for('auth.register') }}" class="btn-hero-primary">
+          <i class="bi bi-arrow-right-circle me-2"></i>Get Started Free
+        </a>
+        <a href="{{ url_for('auth.login') }}" class="btn-hero-secondary">Sign In</a>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="card-mockup">
+        <div class="card-chip"></div>
+        <div class="card-number">•••• •••• •••• 4291</div>
+        <div class="card-info">
+          <div>
+            <div class="card-label">Balance</div>
+            <div class="card-balance">$24,500.00</div>
+          </div>
+          <div class="card-brand">
+            <i class="bi bi-shield-lock-fill"></i>
+          </div>
+        </div>
+      </div>
+      <div class="floating-stat stat-1"><i class="bi bi-arrow-up-circle-fill text-success me-2"></i>+$2,400 this month</div>
+      <div class="floating-stat stat-2"><i class="bi bi-shield-check-fill text-primary me-2"></i>0 fraud alerts</div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features-section">
+    <h2 class="section-title">Everything you need to <span class="gradient-text">manage money</span></h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+        <h3>Instant Transfers</h3>
+        <p>Move money between accounts in seconds with built-in overdraft protection.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-robot"></i></div>
+        <h3>AI Fraud Detection</h3>
+        <p>Isolation Forest ML model monitors every transaction for anomalies in real time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-bar-chart-line-fill"></i></div>
+        <h3>Rich Analytics</h3>
+        <p>Visualize spending, deposits, and account growth with interactive Chart.js dashboards.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-file-earmark-pdf-fill"></i></div>
+        <h3>PDF Statements</h3>
+        <p>Download professional bank statements with running balances at any time.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-lock-fill"></i></div>
+        <h3>Secure Auth</h3>
+        <p>Werkzeug password hashing, session management, and full audit logging.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="bi bi-layout-sidebar-inset"></i></div>
+        <h3>Admin Dashboard</h3>
+        <p>Full admin controls — freeze accounts, resolve fraud alerts, manage all users.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="cta-card">
+      <h2>Ready to experience smarter banking?</h2>
+      <p>Open your account in minutes. No fees, no minimum balance.</p>
+      <a href="{{ url_for('auth.register') }}" class="btn-hero-primary">
+        <i class="bi bi-person-plus me-2"></i>Create Account
+      </a>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <div>© 2024 SmartBank. Built with Flask + SQLAlchemy + Bootstrap 5.</div>
+    <div class="footer-links">
+      <span>Python</span> · <span>Flask</span> · <span>SQLAlchemy</span> · <span>Scikit-learn</span>
+    </div>
+  </footer>
+</div>
+{% endblock %}

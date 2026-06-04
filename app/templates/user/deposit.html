@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+{% block title %}Deposit{% endblock %}
+{% block page_title %}Deposit Funds{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="db-card transaction-card">
+      <div class="txn-card-icon deposit-icon">
+        <i class="bi bi-arrow-down-circle-fill"></i>
+      </div>
+      <h2 class="txn-card-title">Deposit Funds</h2>
+      <p class="txn-card-subtitle">Add money to your account</p>
+
+      <div class="balance-display">
+        <span class="balance-display-label">Current Balance</span>
+        <span class="balance-display-amount">${{ "%.2f"|format(account.balance) }}</span>
+      </div>
+
+      <form method="POST">
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon currency-symbol">$</span>
+            <input type="number" name="amount" class="form-control input-with-icon"
+                   placeholder="0.00" min="0.01" step="0.01" required>
+          </div>
+        </div>
+
+        <div class="quick-amounts">
+          <button type="button" class="quick-amt" onclick="setAmount(100)">$100</button>
+          <button type="button" class="quick-amt" onclick="setAmount(500)">$500</button>
+          <button type="button" class="quick-amt" onclick="setAmount(1000)">$1,000</button>
+          <button type="button" class="quick-amt" onclick="setAmount(5000)">$5,000</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description (optional)</label>
+          <input type="text" name="description" class="form-control"
+                 placeholder="e.g. Salary deposit">
+        </div>
+
+        <button type="submit" class="btn-txn-primary w-100">
+          <i class="bi bi-check-circle me-2"></i>Confirm Deposit
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+function setAmount(v) {
+  document.querySelector('input[name="amount"]').value = v.toFixed(2);
+}
+</script>
+{% endblock %}

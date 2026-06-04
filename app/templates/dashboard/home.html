@@ -1,0 +1,163 @@
+{% extends "layout.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Balance Hero Card -->
+<div class="balance-hero">
+  <div class="balance-hero-left">
+    <div class="balance-label">Total Balance</div>
+    <div class="balance-amount">${{ "%.2f"|format(account.balance) }}</div>
+    <div class="balance-meta">
+      <span class="badge-account-type">{{ account.account_type.title() }}</span>
+      <span class="account-number">{{ account.account_number[:4] }} •••• •••• {{ account.account_number[-4:] }}</span>
+      <span class="status-dot {% if account.status == 'active' %}active{% elif account.status == 'frozen' %}frozen{% else %}closed{% endif %}">
+        {{ account.status.title() }}
+      </span>
+    </div>
+  </div>
+  <div class="balance-hero-right">
+    <div class="quick-actions">
+      <a href="{{ url_for('transactions.deposit_funds') }}" class="quick-action-btn">
+        <i class="bi bi-arrow-down-circle-fill"></i><span>Deposit</span>
+      </a>
+      <a href="{{ url_for('transactions.withdraw_funds') }}" class="quick-action-btn">
+        <i class="bi bi-arrow-up-circle-fill"></i><span>Withdraw</span>
+      </a>
+      <a href="{{ url_for('transactions.transfer_funds') }}" class="quick-action-btn">
+        <i class="bi bi-send-fill"></i><span>Transfer</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="stats-row">
+  <div class="stat-card stat-green">
+    <div class="stat-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Total Deposits</div>
+      <div class="stat-value">${{ "%.2f"|format(total_deposits) }}</div>
+    </div>
+  </div>
+  <div class="stat-card stat-red">
+    <div class="stat-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Total Withdrawals</div>
+      <div class="stat-value">${{ "%.2f"|format(total_withdrawals) }}</div>
+    </div>
+  </div>
+  <div class="stat-card stat-blue">
+    <div class="stat-icon"><i class="bi bi-send-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Total Transfers</div>
+      <div class="stat-value">${{ "%.2f"|format(total_transfers) }}</div>
+    </div>
+  </div>
+  <div class="stat-card {% if fraud_alerts %}stat-orange{% else %}stat-gray{% endif %}">
+    <div class="stat-icon"><i class="bi bi-shield-{% if fraud_alerts %}exclamation{% else %}check{% endif %}-fill"></i></div>
+    <div class="stat-body">
+      <div class="stat-label">Fraud Alerts</div>
+      <div class="stat-value">{{ fraud_alerts|length }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Grid: Chart + Recent Transactions -->
+<div class="dashboard-grid">
+  <!-- Chart -->
+  <div class="db-card chart-card">
+    <div class="db-card-header">
+      <h3>Monthly Activity</h3>
+      <span class="text-muted small">Last 6 months</span>
+    </div>
+    <canvas id="monthlyChart" height="200"></canvas>
+  </div>
+
+  <!-- Recent Transactions -->
+  <div class="db-card">
+    <div class="db-card-header">
+      <h3>Recent Transactions</h3>
+      <a href="{{ url_for('transactions.history') }}" class="btn-link">View all →</a>
+    </div>
+    {% if recent_transactions %}
+      <div class="txn-list">
+        {% for txn in recent_transactions %}
+        <div class="txn-item">
+          <div class="txn-icon txn-{{ txn.transaction_type.split('_')[0] }}">
+            <i class="bi bi-{% if txn.transaction_type == 'deposit' %}arrow-down{% elif txn.transaction_type == 'withdrawal' %}arrow-up{% elif 'transfer' in txn.transaction_type %}send{% endif %}"></i>
+          </div>
+          <div class="txn-details">
+            <div class="txn-type">{{ txn.transaction_type.replace('_', ' ').title() }}</div>
+            <div class="txn-date">{{ txn.created_at.strftime('%b %d, %Y %H:%M') }}</div>
+          </div>
+          <div class="txn-amount {% if txn.transaction_type in ['deposit', 'transfer_in'] %}amount-positive{% else %}amount-negative{% endif %}">
+            {% if txn.transaction_type in ['deposit', 'transfer_in'] %}+{% else %}-{% endif %}${{ "%.2f"|format(txn.amount) }}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <p>No transactions yet</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Fraud Alerts -->
+{% if fraud_alerts %}
+<div class="db-card fraud-card">
+  <div class="db-card-header">
+    <h3><i class="bi bi-shield-exclamation text-warning me-2"></i>Active Fraud Alerts</h3>
+  </div>
+  {% for alert in fraud_alerts %}
+  <div class="alert-item severity-{{ alert.severity }}">
+    <div class="alert-severity badge-severity-{{ alert.severity }}">{{ alert.severity.upper() }}</div>
+    <div class="alert-body">
+      <div class="alert-type">{{ alert.alert_type.replace('_', ' ').title() }}</div>
+      <div class="alert-desc">{{ alert.description }}</div>
+    </div>
+    <div class="alert-time text-muted small">{{ alert.created_at.strftime('%b %d %H:%M') }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const monthlyData = {{ monthly_data|safe }};
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: monthlyData.months,
+    datasets: [
+      {
+        label: 'Deposits',
+        data: monthlyData.deposits,
+        backgroundColor: 'rgba(34,197,94,0.8)',
+        borderRadius: 6,
+      },
+      {
+        label: 'Withdrawals',
+        data: monthlyData.withdrawals,
+        backgroundColor: 'rgba(239,68,68,0.8)',
+        borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { color: '#94a3b8' } } },
+    scales: {
+      x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(148,163,184,0.1)' } },
+      y: { ticks: { color: '#94a3b8', callback: v => '$' + v.toLocaleString() },
+           grid: { color: 'rgba(148,163,184,0.1)' } }
+    }
+  }
+});
+</script>
+{% endblock %}

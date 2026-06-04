@@ -1,0 +1,125 @@
+{% extends "layout.html" %}
+{% block title %}Transaction History{% endblock %}
+{% block page_title %}Transaction History{% endblock %}
+
+{% block content %}
+<!-- Filters -->
+<div class="db-card mb-4">
+  <form method="GET" class="row g-3 p-3 align-items-end">
+    <div class="col-md-2">
+      <label class="form-label">Type</label>
+      <select name="type" class="form-select">
+        <option value="">All Types</option>
+        <option value="deposit" {% if filters.type == 'deposit' %}selected{% endif %}>Deposit</option>
+        <option value="withdrawal" {% if filters.type == 'withdrawal' %}selected{% endif %}>Withdrawal</option>
+        <option value="transfer_out" {% if filters.type == 'transfer_out' %}selected{% endif %}>Transfer Out</option>
+        <option value="transfer_in" {% if filters.type == 'transfer_in' %}selected{% endif %}>Transfer In</option>
+      </select>
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">From Date</label>
+      <input type="date" name="start_date" class="form-control" value="{{ filters.start_date }}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">To Date</label>
+      <input type="date" name="end_date" class="form-control" value="{{ filters.end_date }}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Min Amount</label>
+      <input type="number" name="min_amount" class="form-control" placeholder="0" value="{{ filters.min_amount }}" step="0.01">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label">Max Amount</label>
+      <input type="number" name="max_amount" class="form-control" placeholder="Any" value="{{ filters.max_amount }}" step="0.01">
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+  </form>
+</div>
+
+<!-- Download -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <p class="text-muted mb-0">{{ pagination.total }} transaction(s) found</p>
+  <a href="{{ url_for('reports.download_statement', start_date=filters.start_date, end_date=filters.end_date) }}"
+     class="btn btn-sm btn-outline-primary">
+    <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
+  </a>
+</div>
+
+<div class="db-card">
+  {% if transactions %}
+  <div class="table-responsive">
+    <table class="table smart-table">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Date & Time</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th class="text-end">Amount</th>
+          <th class="text-end">Balance After</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for txn in transactions %}
+        <tr>
+          <td><span class="font-mono small text-muted">{{ txn.transaction_id[:8] }}...</span></td>
+          <td class="small">{{ txn.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+          <td>
+            <span class="txn-badge txn-badge-{{ txn.transaction_type.split('_')[0] }}">
+              {{ txn.transaction_type.replace('_',' ').title() }}
+            </span>
+          </td>
+          <td class="small text-muted">{{ txn.description or '—' }}</td>
+          <td class="text-end fw-600 {% if txn.transaction_type in ['deposit','transfer_in'] %}text-success{% else %}text-danger{% endif %}">
+            {% if txn.transaction_type in ['deposit','transfer_in'] %}+{% else %}-{% endif %}${{ "%.2f"|format(txn.amount) }}
+          </td>
+          <td class="text-end small">${{ "%.2f"|format(txn.balance_after) }}</td>
+          <td>
+            {% if txn.is_flagged %}
+              <span class="badge bg-warning text-dark"><i class="bi bi-flag-fill me-1"></i>Flagged</span>
+            {% else %}
+              <span class="badge bg-success">Clear</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if pagination.pages > 1 %}
+  <div class="d-flex justify-content-center mt-4">
+    <nav>
+      <ul class="pagination">
+        {% if pagination.has_prev %}
+          <li class="page-item"><a class="page-link" href="?page={{ pagination.prev_num }}&type={{ filters.type }}&start_date={{ filters.start_date }}&end_date={{ filters.end_date }}">«</a></li>
+        {% endif %}
+        {% for p in pagination.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+          {% if p %}
+            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+              <a class="page-link" href="?page={{ p }}&type={{ filters.type }}&start_date={{ filters.start_date }}&end_date={{ filters.end_date }}">{{ p }}</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">…</span></li>
+          {% endif %}
+        {% endfor %}
+        {% if pagination.has_next %}
+          <li class="page-item"><a class="page-link" href="?page={{ pagination.next_num }}&type={{ filters.type }}&start_date={{ filters.start_date }}&end_date={{ filters.end_date }}">»</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+
+  {% else %}
+    <div class="empty-state p-5">
+      <i class="bi bi-inbox" style="font-size:3rem"></i>
+      <p class="mt-3">No transactions match your filters.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
